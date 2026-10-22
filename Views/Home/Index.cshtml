@@ -1,0 +1,470 @@
+@{
+    ViewData["Title"] = "Dashboard";
+    var isStudent = User.IsInRole("Student");
+    var isFaculty = User.IsInRole("Faculty");
+    var isAdmin = User.IsInRole("Admin");
+}
+
+<!-- Welcome Hero Banner -->
+<div class="dashboard-hero">
+    <div class="row align-items-center">
+        <div class="col-lg-8">
+            @if (isAdmin)
+            {
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-3 text-uppercase fw-semibold" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                    <i class="bi bi-shield-lock-fill me-1"></i> Administrator Control Center
+                </span>
+            }
+            else if (isFaculty)
+            {
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-3 text-uppercase fw-semibold" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                    <i class="bi bi-person-badge-fill me-1"></i> Faculty Academic Portal
+                </span>
+            }
+            else if (isStudent)
+            {
+                <span class="badge bg-white bg-opacity-20 text-white rounded-pill px-3 py-1 mb-3 text-uppercase fw-semibold" style="letter-spacing: 0.05em; font-size: 0.75rem;">
+                    <i class="bi bi-mortarboard-fill me-1"></i> Student Learning Portal
+                </span>
+            }
+
+            <h1 class="display-6 fw-bold text-white mb-2">Welcome Back, @(User.Identity?.Name?.Split('@')[0] ?? "User")!</h1>
+            <p class="text-white-50 mb-0 fs-6">
+                @(isStudent
+                    ? "Explore available courses, track your enrolled subjects, and manage your academic profile."
+                    : isFaculty
+                        ? "Manage course syllabus, view class rosters, and evaluate student enrollment status."
+                        : "Overview of student admissions, curriculum management, revenue, and system users.")
+            </p>
+        </div>
+        <div class="col-lg-4 text-lg-end mt-3 mt-lg-0">
+            <div class="d-inline-flex align-items-center gap-2 bg-white bg-opacity-10 rounded-3 px-3 py-2 text-white">
+                <i class="bi bi-calendar3"></i>
+                <span class="small fw-medium">@DateTime.Now.ToString("dddd, MMMM dd, yyyy")</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Stat Metric Cards -->
+<div class="row g-4 mb-4">
+    @if (isStudent)
+    {
+        <div class="col-md-4">
+            <div class="stat-card stat-warning h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">My Enrolled Courses</span>
+                        <div class="stat-value">@(ViewBag.MyEnrollmentCount ?? 0)</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-warning">
+                        <i class="bi bi-card-checklist"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Active subject roster</span>
+                    <a asp-controller="Enrollments" asp-action="Index" class="btn btn-sm btn-link text-warning p-0 fw-semibold text-decoration-none">
+                        View my courses <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card stat-success h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Available Courses</span>
+                        <div class="stat-value">@ViewBag.CourseCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-success">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Open curriculum</span>
+                    <a asp-controller="Courses" asp-action="Index" class="btn btn-sm btn-link text-success p-0 fw-semibold text-decoration-none">
+                        Browse catalog <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card stat-primary h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">My Profile</span>
+                        <div class="stat-value fs-4 text-primary mt-2">Active Student</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-primary">
+                        <i class="bi bi-person-badge"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Personal academic file</span>
+                    <a asp-controller="Students" asp-action="MyProfile" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none">
+                        Edit profile <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+    else if (isAdmin)
+    {
+        <div class="col-md-3">
+            <div class="stat-card stat-primary h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Total Students</span>
+                        <div class="stat-value">@ViewBag.StudentCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Admissions</span>
+                    <a asp-controller="Students" asp-action="Index" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none">
+                        View directory <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-success h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Total Courses</span>
+                        <div class="stat-value">@ViewBag.CourseCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-success">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Curriculum</span>
+                    <a asp-controller="Courses" asp-action="Index" class="btn btn-sm btn-link text-success p-0 fw-semibold text-decoration-none">
+                        View catalog <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-warning h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Enrollments</span>
+                        <div class="stat-value">@ViewBag.EnrollmentCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-warning">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Total registered</span>
+                    <a asp-controller="Enrollments" asp-action="Index" class="btn btn-sm btn-link text-warning p-0 fw-semibold text-decoration-none">
+                        View records <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-3">
+            <div class="stat-card stat-info h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Total Revenue</span>
+                        <div class="stat-value fs-3 text-dark mt-2">₹@(((decimal)(ViewBag.TotalRevenue ?? 0)).ToString("N0"))</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-info">
+                        <i class="bi bi-cash-coin"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Tuition turnover</span>
+                    <span class="badge-soft-success">Verified</span>
+                </div>
+            </div>
+        </div>
+    }
+    else
+    {
+        <!-- Faculty View -->
+        <div class="col-md-4">
+            <div class="stat-card stat-primary h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Total Students</span>
+                        <div class="stat-value">@ViewBag.StudentCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-primary">
+                        <i class="bi bi-people-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Active student body</span>
+                    <a asp-controller="Students" asp-action="Index" class="btn btn-sm btn-link text-primary p-0 fw-semibold text-decoration-none">
+                        View students <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card stat-success h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Courses Catalog</span>
+                        <div class="stat-value">@ViewBag.CourseCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-success">
+                        <i class="bi bi-book-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Teaching curriculum</span>
+                    <a asp-controller="Courses" asp-action="Index" class="btn btn-sm btn-link text-success p-0 fw-semibold text-decoration-none">
+                        View rosters <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-md-4">
+            <div class="stat-card stat-warning h-100">
+                <div class="d-flex justify-content-between align-items-start mb-3">
+                    <div>
+                        <span class="stat-label">Total Enrollments</span>
+                        <div class="stat-value">@ViewBag.EnrollmentCount</div>
+                    </div>
+                    <div class="stat-icon-box stat-icon-warning">
+                        <i class="bi bi-mortarboard-fill"></i>
+                    </div>
+                </div>
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Student course assignments</span>
+                    <a asp-controller="Enrollments" asp-action="Index" class="btn btn-sm btn-link text-warning p-0 fw-semibold text-decoration-none">
+                        Manage grades <i class="bi bi-arrow-right"></i>
+                    </a>
+                </div>
+            </div>
+        </div>
+    }
+</div>
+
+<!-- Quick Actions & Overview -->
+<div class="row g-4">
+    <div class="col-lg-8">
+        <div class="card-modern h-100">
+            <div class="card-modern-header">
+                <div>
+                    <h5 class="mb-0 fw-bold">
+                        @(isStudent ? "Student Academic Hub" : isFaculty ? "Faculty Quick Management" : "Administrator Management Suite")
+                    </h5>
+                    <small class="text-muted">
+                        @(isStudent ? "Direct actions for your courses and profile" : "Shortcuts tailored to your role responsibilities")
+                    </small>
+                </div>
+            </div>
+            <div class="card-modern-body">
+                <div class="row g-3">
+                    @if (isStudent)
+                    {
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-success mx-auto mb-2">
+                                        <i class="bi bi-book"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Browse Courses</h6>
+                                    <p class="text-muted small mb-0">View all available syllabus</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Enrollments" asp-action="Create" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-warning mx-auto mb-2">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Enroll in Course</h6>
+                                    <p class="text-muted small mb-0">Register for a new course</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Students" asp-action="MyProfile" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-primary mx-auto mb-2">
+                                        <i class="bi bi-person-badge"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">My Profile</h6>
+                                    <p class="text-muted small mb-0">Edit contact details</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                    else if (isFaculty)
+                    {
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Courses" asp-action="Index" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-primary mx-auto mb-2">
+                                        <i class="bi bi-people-fill"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Class Rosters</h6>
+                                    <p class="text-muted small mb-0">View enrolled students & grade</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Courses" asp-action="Create" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-success mx-auto mb-2">
+                                        <i class="bi bi-journal-plus"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Add Course</h6>
+                                    <p class="text-muted small mb-0">Publish new syllabus</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Enrollments" asp-action="Index" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-warning mx-auto mb-2">
+                                        <i class="bi bi-card-checklist"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">All Enrollments</h6>
+                                    <p class="text-muted small mb-0">Review student course records</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                    else
+                    {
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Students" asp-action="Create" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-primary mx-auto mb-2">
+                                        <i class="bi bi-person-plus-fill"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Add Student</h6>
+                                    <p class="text-muted small mb-0">Register a new student</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Courses" asp-action="Create" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-success mx-auto mb-2">
+                                        <i class="bi bi-journal-plus"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Add Course</h6>
+                                    <p class="text-muted small mb-0">Create new course syllabus</p>
+                                </div>
+                            </a>
+                        </div>
+
+                        <div class="col-sm-6 col-md-4">
+                            <a asp-controller="Admin" asp-action="Index" class="text-decoration-none">
+                                <div class="p-3 border rounded-3 text-center h-100 bg-light-subtle card-modern-hover">
+                                    <div class="stat-icon-box stat-icon-warning mx-auto mb-2">
+                                        <i class="bi bi-people-gear"></i>
+                                    </div>
+                                    <h6 class="fw-bold text-dark mb-1">Manage Users</h6>
+                                    <p class="text-muted small mb-0">Admins, faculty, and students</p>
+                                </div>
+                            </a>
+                        </div>
+                    }
+                </div>
+
+                @if (isAdmin)
+                {
+                    <div class="mt-4 p-3 bg-light rounded-3 d-flex align-items-center justify-content-between flex-wrap gap-2">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-primary fs-5"></i>
+                            <span class="small text-secondary">Looking to add more faculty, student, or admin accounts?</span>
+                        </div>
+                        <a asp-controller="Admin" asp-action="CreateUser" class="btn btn-sm btn-outline-primary rounded-pill px-3">
+                            <i class="bi bi-person-plus me-1"></i> Create User Account
+                        </a>
+                    </div>
+                }
+            </div>
+        </div>
+    </div>
+
+    <div class="col-lg-4">
+        <div class="card-modern h-100">
+            <div class="card-modern-header">
+                <div>
+                    <h5 class="mb-0 fw-bold">Role Capabilities</h5>
+                    <small class="text-muted">Permissions active for current session</small>
+                </div>
+            </div>
+            <div class="card-modern-body">
+                <ul class="list-unstyled mb-0 d-flex flex-column gap-3">
+                    <li class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-shield-check text-primary fs-5"></i>
+                            <div>
+                                <div class="fw-semibold small">Current Role</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    @(isAdmin ? "Administrator" : isFaculty ? "Faculty Member" : "Enrolled Student")
+                                </div>
+                            </div>
+                        </div>
+                        @if (isAdmin)
+                        {
+                            <span class="badge-soft-primary">Admin Access</span>
+                        }
+                        else if (isFaculty)
+                        {
+                            <span class="badge-soft-success">Faculty Access</span>
+                        }
+                        else
+                        {
+                            <span class="badge-soft-warning">Student Access</span>
+                        }
+                    </li>
+
+                    <li class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-journal-text text-success fs-5"></i>
+                            <div>
+                                <div class="fw-semibold small">Course Management</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">
+                                    @(isStudent ? "Browse & Self-Enroll" : "Create & Manage Rosters")
+                                </div>
+                            </div>
+                        </div>
+                        <span class="badge-soft-slate">Enabled</span>
+                    </li>
+
+                    <li class="d-flex align-items-center justify-content-between p-2 rounded-2 bg-light">
+                        <div class="d-flex align-items-center gap-2">
+                            <i class="bi bi-database-check text-info fs-5"></i>
+                            <div>
+                                <div class="fw-semibold small">Database & Identity</div>
+                                <div class="text-muted" style="font-size: 0.75rem;">MySQL & ASP.NET Core</div>
+                            </div>
+                        </div>
+                        <span class="badge-soft-success">
+                            <span class="badge-dot badge-dot-success"></span>
+                            <span>Live</span>
+                        </span>
+                    </li>
+                </ul>
+            </div>
+        </div>
+    </div>
+</div>

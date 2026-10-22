@@ -1,0 +1,23 @@
+@{
+    ViewData["Title"] = "Access Restricted";
+}
+
+<div class="row justify-content-center mt-5 mb-5">
+    <div class="col-md-6 col-lg-5 text-center">
+        <div class="card-modern p-5 shadow-sm">
+            <div class="app-empty-icon mx-auto mb-3" style="width: 72px; height: 72px; font-size: 2rem; background: #fee2e2; color: #dc2626;">
+                <i class="bi bi-shield-x"></i>
+            </div>
+            <h3 class="fw-bold mb-2">Access Denied</h3>
+            <p class="text-muted mb-4">
+                You do not have the necessary administrative privileges to view or perform operations on this page.
+            </p>
+            <div class="d-flex justify-content-center gap-2">
+                <a asp-controller="Home" asp-action="Index" class="btn-app-primary">
+                    <i class="bi bi-house-door"></i>
+                    <span>Back to Dashboard</span>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

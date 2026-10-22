@@ -1,0 +1,80 @@
+@model StudentCourseManagement.Models.Student
+
+@{
+    ViewData["Title"] = "Edit Student";
+}
+
+<div class="form-card">
+    <div class="form-card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-warning">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0">Edit Student Details</h4>
+                <small class="text-muted">Update profile information for @Model.FullName</small>
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="form-card-body">
+        <form asp-controller="Students" asp-action="Edit" asp-route-id="@Model.Id" method="post">
+            <input type="hidden" asp-for="Id" />
+
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+            <div class="mb-3">
+                <label asp-for="FullName" class="form-label">Full Name <span class="text-danger">*</span></label>
+                <div class="input-icon-group">
+                    <i class="bi bi-person"></i>
+                    <input asp-for="FullName" class="form-control" />
+                </div>
+                <span asp-validation-for="FullName" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Email" class="form-label">Email Address <span class="text-danger">*</span></label>
+                <div class="input-icon-group">
+                    <i class="bi bi-envelope"></i>
+                    <input asp-for="Email" class="form-control" />
+                </div>
+                <span asp-validation-for="Email" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-3">
+                <label asp-for="Phone" class="form-label">Phone Number</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-telephone"></i>
+                    <input asp-for="Phone" class="form-control" />
+                </div>
+                <span asp-validation-for="Phone" class="text-danger small"></span>
+            </div>
+
+            <div class="mb-4">
+                <label asp-for="Department" class="form-label">Department / Branch</label>
+                <div class="input-icon-group">
+                    <i class="bi bi-building"></i>
+                    <input asp-for="Department" class="form-control" />
+                </div>
+                <span asp-validation-for="Department" class="text-danger small"></span>
+            </div>
+
+            <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                <button type="submit" class="btn-app-primary">
+                    <i class="bi bi-check2"></i>
+                    <span>Save Changes</span>
+                </button>
+                <a asp-action="Index" class="btn-app-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

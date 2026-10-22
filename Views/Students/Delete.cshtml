@@ -1,0 +1,62 @@
+@model StudentCourseManagement.Models.Student
+
+@{
+    ViewData["Title"] = "Delete Student";
+}
+
+<div class="form-card" style="max-width: 580px;">
+    <div class="form-card-header bg-danger-subtle border-danger-subtle d-flex align-items-center gap-3">
+        <div class="stat-icon-box stat-icon-warning" style="background: #fee2e2; color: #dc2626;">
+            <i class="bi bi-exclamation-triangle-fill"></i>
+        </div>
+        <div>
+            <h4 class="fw-bold text-danger mb-0">Delete Student Confirmation</h4>
+            <small class="text-muted">This action will remove the student record</small>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <div class="alert alert-warning d-flex align-items-center gap-2 small mb-4">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+            <div>
+                Deleting this student will also affect their enrollment records. This action cannot be undone.
+            </div>
+        </div>
+
+        <div class="card p-3 bg-light border-0 mb-4 rounded-3">
+            <div class="d-flex align-items-center gap-3 mb-3 pb-3 border-bottom">
+                <div class="student-avatar" style="width: 44px; height: 44px; font-size: 1rem;">
+                    @(!string.IsNullOrEmpty(Model.FullName) ? Model.FullName.Substring(0, 1).ToUpper() : "S")
+                </div>
+                <div>
+                    <h5 class="fw-bold mb-0">@Model.FullName</h5>
+                    <span class="text-muted small">Student ID: #@Model.Id</span>
+                </div>
+            </div>
+
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4 text-muted">Email</dt>
+                <dd class="col-sm-8 fw-semibold">@Model.Email</dd>
+
+                <dt class="col-sm-4 text-muted">Phone</dt>
+                <dd class="col-sm-8 fw-semibold">@(string.IsNullOrWhiteSpace(Model.Phone) ? "Not Provided" : Model.Phone)</dd>
+
+                <dt class="col-sm-4 text-muted">Department</dt>
+                <dd class="col-sm-8 fw-semibold">@(string.IsNullOrWhiteSpace(Model.Department) ? "General" : Model.Department)</dd>
+            </dl>
+        </div>
+
+        <form asp-action="Delete" method="post" class="d-flex align-items-center gap-2 pt-2 border-top">
+            <input type="hidden" asp-for="Id" />
+
+            <button type="submit" class="btn-app-danger">
+                <i class="bi bi-trash3-fill"></i>
+                <span>Yes, Confirm Delete</span>
+            </button>
+
+            <a asp-action="Index" class="btn-app-secondary">
+                Cancel
+            </a>
+        </form>
+    </div>
+</div>

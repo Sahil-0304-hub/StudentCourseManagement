@@ -1,0 +1,58 @@
+@{
+    ViewData["Title"] = "Privacy Policy";
+}
+
+<div class="row justify-content-center mt-4 mb-5">
+    <div class="col-lg-8">
+        <div class="card-modern shadow-sm">
+            <div class="card-modern-header">
+                <div>
+                    <h3 class="fw-bold mb-1">Privacy & Data Protection</h3>
+                    <small class="text-muted">Information on how student and course data is secured and managed</small>
+                </div>
+                <span class="badge-soft-primary">
+                    <i class="bi bi-shield-check"></i> Compliant
+                </span>
+            </div>
+
+            <div class="card-modern-body p-4">
+                <section class="mb-4">
+                    <h5 class="fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-database-lock text-primary"></i>
+                        <span>Data Storage & Security</span>
+                    </h5>
+                    <p class="text-muted">
+                        All student personal information, course offerings, and enrollment records within EduPortal are protected using industry-standard encryption protocols and secure database access controls. Only authenticated administrators have authorized access.
+                    </p>
+                </section>
+
+                <section class="mb-4">
+                    <h5 class="fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-people text-success"></i>
+                        <span>Student Information Usage</span>
+                    </h5>
+                    <p class="text-muted">
+                        Student information, including email addresses, telephone numbers, and department affiliations, is solely utilized for academic administration, course assignments, and institutional communication. We do not distribute or share student information with third parties.
+                    </p>
+                </section>
+
+                <section class="mb-4">
+                    <h5 class="fw-bold text-dark d-flex align-items-center gap-2">
+                        <i class="bi bi-key text-warning"></i>
+                        <span>Administrative Accountability</span>
+                    </h5>
+                    <p class="text-muted">
+                        Access logs, user management, and session timeouts are strictly enforced through ASP.NET Core Identity authentication mechanisms. Admins are encouraged to keep passwords strong and sign out on shared devices.
+                    </p>
+                </section>
+
+                <div class="pt-3 border-top d-flex justify-content-between align-items-center">
+                    <span class="text-muted small">Last updated: October 2026</span>
+                    <a asp-controller="Home" asp-action="Index" class="btn-app-secondary">
+                        <i class="bi bi-arrow-left"></i> Return to Dashboard
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

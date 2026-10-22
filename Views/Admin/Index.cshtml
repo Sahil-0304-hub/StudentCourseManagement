@@ -1,0 +1,163 @@
+@model IEnumerable<StudentCourseManagement.Controllers.UserWithRolesViewModel>
+
+@{
+    ViewData["Title"] = "User & Role Management";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">User & Role Management</h2>
+        <p class="text-muted mb-0">Manage system access, roles (Admin / Faculty), and user credentials.</p>
+    </div>
+
+    <a asp-controller="Admin" asp-action="CreateUser" class="btn-app-primary">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Create User Account</span>
+    </a>
+</div>
+
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="app-alert app-alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Success"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+@if (TempData["Error"] != null)
+{
+    <div class="app-alert app-alert-danger alert-dismissible fade show" role="alert">
+        <i class="bi bi-exclamation-triangle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Error"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Users Table -->
+<div class="app-table-container">
+    <div class="table-responsive">
+        <table class="app-table align-middle">
+            <thead>
+                <tr>
+                    <th>User Identity</th>
+                    <th>Email Address</th>
+                    <th>Assigned Role(s)</th>
+                    <th class="text-end" style="width: 150px;">Account Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="4" class="p-0">
+                            <div class="app-empty-state">
+                                <div class="app-empty-icon">
+                                    <i class="bi bi-people"></i>
+                                </div>
+                                <h5 class="fw-bold mb-1">No Accounts Found</h5>
+                                <p class="text-muted mb-3">No user accounts are registered yet.</p>
+                            </div>
+                        </td>
+                    </tr>
+                }
+                else
+                {
+                    @foreach (var item in Model)
+                    {
+                        var user = item.User;
+                        var roles = item.Roles;
+                        var initial = !string.IsNullOrEmpty(user.Email)
+                            ? user.Email.Substring(0, 1).ToUpper()
+                            : "U";
+                        var currentUserId = User.FindFirst(
+                            System.Security.Claims.ClaimTypes.NameIdentifier)?.Value;
+                        var isCurrent = user.Id == currentUserId;
+                        var isFaculty = roles.Contains("Faculty");
+                        var isAdmin = roles.Contains("Admin");
+
+                        <tr>
+                            <td>
+                                <div class="d-flex align-items-center gap-3">
+                                    <span class="user-avatar-circle" style="width: 36px; height: 36px; font-size: 0.95rem; background: @(isAdmin ? "#4f46e5" : "#10b981");">
+                                        @initial
+                                    </span>
+                                    <div>
+                                        <div class="fw-bold text-dark">@(user.UserName ?? user.Email)</div>
+                                        <small class="text-muted">ID: @user.Id.Substring(0, Math.Min(8, user.Id.Length))...</small>
+                                    </div>
+                                </div>
+                            </td>
+                            <td>
+                                <a href="mailto:@user.Email" class="text-muted text-decoration-none d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-envelope text-secondary"></i>
+                                    <span>@user.Email</span>
+                                </a>
+                            </td>
+                            <td>
+                                <div class="d-flex align-items-center gap-1 flex-wrap">
+                                    @if (isAdmin)
+                                    {
+                                        <span class="badge-soft-primary">
+                                            <i class="bi bi-shield-lock-fill"></i>
+                                            <span>Administrator</span>
+                                        </span>
+                                    }
+                                    @if (isFaculty)
+                                    {
+                                        <span class="badge-soft-success">
+                                            <i class="bi bi-person-badge-fill"></i>
+                                            <span>Faculty</span>
+                                        </span>
+                                    }
+                                    @if (roles.Contains("Student"))
+                                    {
+                                        <span class="badge-soft-warning">
+                                            <i class="bi bi-mortarboard-fill"></i>
+                                            <span>Student</span>
+                                        </span>
+                                    }
+                                    @if (!isAdmin && !isFaculty && !roles.Contains("Student"))
+                                    {
+                                        <span class="badge-soft-slate">Standard User</span>
+                                    }
+                                </div>
+                            </td>
+                            <td class="text-end">
+                                @if (!isCurrent)
+                                {
+                                    <form asp-controller="Admin"
+                                          asp-action="Delete"
+                                          method="post"
+                                          class="d-inline"
+                                          onsubmit="return confirm('Are you sure you want to permanently delete account @user.Email?');">
+                                        @Html.AntiForgeryToken()
+                                        <input type="hidden" name="id" value="@user.Id" />
+                                        <button type="submit" class="btn btn-outline-danger btn-sm rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1">
+                                            <i class="bi bi-trash3"></i>
+                                            <span>Delete</span>
+                                        </button>
+                                    </form>
+                                }
+                                else
+                                {
+                                    <span class="badge-soft-slate">
+                                        <i class="bi bi-person-circle"></i>
+                                        <span>Current Account</span>
+                                    </span>
+                                }
+                            </td>
+                        </tr>
+                    }
+                }
+            </tbody>
+        </table>
+    </div>
+
+    <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center">
+        <span class="text-muted small">Total <strong>@Model.Count()</strong> registered account@(Model.Count() == 1 ? "" : "s")</span>
+        <span class="badge-soft-slate">Admin & Faculty Security Active</span>
+    </div>
+</div>

@@ -1,0 +1,198 @@
+@model StudentCourseManagement.Models.Student
+
+@{
+    ViewData["Title"] = "My Academic Profile";
+    var enrollments = ViewBag.Enrollments as List<StudentCourseManagement.Models.Enrollment> ?? new List<StudentCourseManagement.Models.Enrollment>();
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">My Academic Profile</h2>
+        <p class="text-muted mb-0">Manage your contact details and review your enrolled courses history.</p>
+    </div>
+
+    <a asp-controller="Courses" asp-action="Index" class="btn-app-primary">
+        <i class="bi bi-book"></i>
+        <span>Browse Courses</span>
+    </a>
+</div>
+
+<!-- Alerts -->
+@if (TempData["Success"] != null)
+{
+    <div class="app-alert app-alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Success"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<div class="row g-4 mb-5">
+    <!-- Student Profile Card & Form -->
+    <div class="col-lg-5">
+        <div class="card-modern shadow-sm h-100">
+            <div class="p-4 text-center border-bottom bg-light-subtle">
+                <div class="student-avatar mx-auto mb-3" style="width: 64px; height: 64px; font-size: 1.5rem; background: linear-gradient(135deg, #fef3c7 0%, #fde68a 100%); color: #b45309;">
+                    @(!string.IsNullOrEmpty(Model.FullName) ? Model.FullName.Substring(0, 1).ToUpper() : "S")
+                </div>
+                <h4 class="fw-bold mb-1">@Model.FullName</h4>
+                <p class="text-muted small mb-2">@Model.Email</p>
+                <span class="badge-soft-warning">
+                    <i class="bi bi-mortarboard-fill"></i> Registered Student
+                </span>
+            </div>
+
+            <div class="card-modern-body p-4">
+                <h5 class="fw-bold mb-3 d-flex align-items-center gap-2">
+                    <i class="bi bi-pencil-square text-primary"></i> Edit Profile Info
+                </h5>
+
+                <form asp-controller="Students" asp-action="UpdateMyProfile" method="post">
+                    @Html.AntiForgeryToken()
+                    <input type="hidden" asp-for="Id" />
+                    <input type="hidden" asp-for="Email" />
+
+                    <div class="mb-3">
+                        <label asp-for="FullName" class="form-label">Full Name</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-person"></i>
+                            <input asp-for="FullName" class="form-control" />
+                        </div>
+                    </div>
+
+                    <div class="mb-3">
+                        <label class="form-label">Email Address</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-envelope"></i>
+                            <input type="text" class="form-control bg-light" value="@Model.Email" readonly disabled />
+                        </div>
+                        <small class="text-muted" style="font-size: 0.75rem;">Account email cannot be modified directly.</small>
+                    </div>
+
+                    <div class="mb-3">
+                        <label asp-for="Phone" class="form-label">Phone Number</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-telephone"></i>
+                            <input asp-for="Phone" class="form-control" placeholder="+91 98765 00000" />
+                        </div>
+                    </div>
+
+                    <div class="mb-4">
+                        <label asp-for="Department" class="form-label">Department / Major</label>
+                        <div class="input-icon-group">
+                            <i class="bi bi-building"></i>
+                            <input asp-for="Department" class="form-control" placeholder="e.g. Computer Science" />
+                        </div>
+                    </div>
+
+                    <button type="submit" class="btn-app-primary w-100 justify-content-center">
+                        <i class="bi bi-check2"></i>
+                        <span>Save Profile Changes</span>
+                    </button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Enrolled Courses Summary -->
+    <div class="col-lg-7">
+        <div class="card-modern shadow-sm h-100">
+            <div class="card-modern-header">
+                <div>
+                    <h5 class="mb-0 fw-bold">My Enrolled Courses</h5>
+                    <small class="text-muted">Currently active academic curriculum</small>
+                </div>
+                <span class="badge-soft-slate">Total Courses: @enrollments.Count</span>
+            </div>
+
+            <div class="card-modern-body p-0">
+                @if (enrollments.Count == 0)
+                {
+                    <div class="app-empty-state">
+                        <div class="app-empty-icon">
+                            <i class="bi bi-book"></i>
+                        </div>
+                        <h5 class="fw-bold mb-1">No Courses Enrolled</h5>
+                        <p class="text-muted mb-3">You have not enrolled in any academic courses yet.</p>
+                        <a asp-controller="Courses" asp-action="Index" class="btn-app-primary">
+                            <i class="bi bi-book"></i> Explore Course Catalog
+                        </a>
+                    </div>
+                }
+                else
+                {
+                    <div class="table-responsive">
+                        <table class="app-table align-middle mb-0">
+                            <thead>
+                                <tr>
+                                    <th>Course</th>
+                                    <th>Tuition Fee</th>
+                                    <th>Enrolled Date</th>
+                                    <th>Status / Grade</th>
+                                    <th class="text-end">Action</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach (var enrollment in enrollments)
+                                {
+                                    <tr>
+                                        <td>
+                                            <div class="d-flex align-items-center gap-2">
+                                                <span class="badge-soft-primary p-2 rounded-2">
+                                                    <i class="bi bi-book"></i>
+                                                </span>
+                                                <div>
+                                                    <div class="fw-bold text-dark">@(enrollment.Course?.CourseName ?? "Unknown Course")</div>
+                                                    <small class="text-muted">@(enrollment.Course?.DurationInWeeks ?? 0) Weeks</small>
+                                                </div>
+                                            </div>
+                                        </td>
+                                        <td>
+                                            <span class="fw-semibold text-dark">₹@(enrollment.Course?.Fees.ToString("N2") ?? "0.00")</span>
+                                        </td>
+                                        <td>
+                                            <small class="text-muted">@enrollment.EnrollmentDate.ToString("dd MMM yyyy")</small>
+                                        </td>
+                                        <td>
+                                            @if (enrollment.Status.Contains("Grade: A") || enrollment.Status == "Completed")
+                                            {
+                                                <span class="badge-soft-success">
+                                                    <span class="badge-dot badge-dot-success"></span>
+                                                    <span>@enrollment.Status</span>
+                                                </span>
+                                            }
+                                            else
+                                            {
+                                                <span class="badge-soft-primary">
+                                                    <span class="badge-dot badge-dot-primary"></span>
+                                                    <span>@enrollment.Status</span>
+                                                </span>
+                                            }
+                                        </td>
+                                        <td class="text-end">
+                                            <a asp-controller="Enrollments"
+                                               asp-action="Delete"
+                                               asp-route-id="@enrollment.Id"
+                                               class="btn btn-sm btn-outline-danger rounded-pill px-2 py-1"
+                                               title="Drop / Withdraw Course">
+                                                <i class="bi bi-x-circle"></i> Drop
+                                            </a>
+                                        </td>
+                                    </tr>
+                                }
+                            </tbody>
+                        </table>
+                    </div>
+                }
+            </div>
+
+            <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center">
+                <span class="text-muted small">Need academic help? Contact faculty via course roster.</span>
+                <a asp-controller="Enrollments" asp-action="Index" class="btn btn-sm btn-link text-primary p-0 text-decoration-none">
+                    View enrollment receipts <i class="bi bi-arrow-right"></i>
+                </a>
+            </div>
+        </div>
+    </div>
+</div>

@@ -1,0 +1,203 @@
+@model IEnumerable<StudentCourseManagement.Models.Student>
+
+@{
+    ViewData["Title"] = "Students";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Student Directory</h2>
+        <p class="text-muted mb-0">Browse, search, and manage registered student profiles.</p>
+    </div>
+
+    <a asp-action="Create" class="btn-app-primary">
+        <i class="bi bi-person-plus-fill"></i>
+        <span>Register Student</span>
+    </a>
+</div>
+
+<!-- Notification Alert -->
+@if (TempData["Success"] != null)
+{
+    <div class="app-alert app-alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Success"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Search & Filter Bar -->
+<div class="card-modern mb-4">
+    <div class="card-modern-body p-3">
+        <form asp-controller="Students" asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-9 col-sm-8">
+                <div class="input-icon-group">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           name="searchString"
+                           value="@ViewBag.SearchString"
+                           class="form-control"
+                           placeholder="Search by full name, email address, or department..." />
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn-app-primary flex-grow-1 justify-content-center">
+                    <i class="bi bi-search"></i>
+                    <span>Search</span>
+                </button>
+
+                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                {
+                    <a asp-action="Index" class="btn-app-secondary">
+                        <i class="bi bi-x-circle"></i>
+                        <span>Clear</span>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Students Data Table -->
+<div class="app-table-container">
+    <div class="table-responsive">
+        <table class="app-table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Student Name</th>
+                    <th>Contact Email</th>
+                    <th>Phone</th>
+                    <th>Department</th>
+                    <th class="text-end" style="width: 130px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var student in Model)
+                {
+                    var initials = "";
+                    if (!string.IsNullOrWhiteSpace(student.FullName))
+                    {
+                        var parts = student.FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length >= 2)
+                        {
+                            initials = $"{parts[0][0]}{parts[1][0]}".ToUpper();
+                        }
+                        else if (parts.Length == 1 && parts[0].Length > 0)
+                        {
+                            initials = parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+                        }
+                    }
+                    if (string.IsNullOrEmpty(initials)) initials = "ST";
+
+                    <tr>
+                        <td class="text-muted fw-semibold">#@student.Id</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="student-avatar">@initials</span>
+                                <div>
+                                    <div class="fw-bold text-dark">@student.FullName</div>
+                                    <small class="text-muted">Registered Student</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <a href="mailto:@student.Email" class="text-muted text-decoration-none d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-envelope text-primary"></i>
+                                <span>@student.Email</span>
+                            </a>
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(student.Phone))
+                            {
+                                <span class="text-muted d-inline-flex align-items-center gap-2">
+                                    <i class="bi bi-telephone text-secondary"></i>
+                                    <span>@student.Phone</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="text-muted fst-italic">N/A</span>
+                            }
+                        </td>
+                        <td>
+                            @if (!string.IsNullOrWhiteSpace(student.Department))
+                            {
+                                <span class="badge-soft-primary">
+                                    <i class="bi bi-building"></i>
+                                    <span>@student.Department</span>
+                                </span>
+                            }
+                            else
+                            {
+                                <span class="badge-soft-slate">General</span>
+                            }
+                        </td>
+                        <td class="text-end">
+                            <div class="d-inline-flex align-items-center gap-1">
+                                <a asp-action="Edit"
+                                   asp-route-id="@student.Id"
+                                   class="btn-action-icon btn-action-edit"
+                                   title="Edit Student">
+                                    <i class="bi bi-pencil-fill"></i>
+                                </a>
+                                <a asp-action="Delete"
+                                   asp-route-id="@student.Id"
+                                   class="btn-action-icon btn-action-delete"
+                                   title="Delete Student">
+                                    <i class="bi bi-trash3-fill"></i>
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="p-0">
+                            <div class="app-empty-state">
+                                <div class="app-empty-icon">
+                                    <i class="bi bi-person-x"></i>
+                                </div>
+                                <h5 class="fw-bold mb-1">No Students Found</h5>
+                                <p class="text-muted mb-3">
+                                    @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                                    {
+                                        <span>No students matched "<strong>@ViewBag.SearchString</strong>". Try another keyword.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No students have been registered in the system yet.</span>
+                                    }
+                                </p>
+                                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                                {
+                                    <a asp-action="Index" class="btn-app-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i> Clear Search
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Create" class="btn-app-primary">
+                                        <i class="bi bi-person-plus-fill"></i> Add First Student
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Showing <strong>@Model.Count()</strong> registered @(Model.Count() == 1 ? "student" : "students")</span>
+            <span class="badge-soft-slate">Total Records: @Model.Count()</span>
+        </div>
+    }
+</div>

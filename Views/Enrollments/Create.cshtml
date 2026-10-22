@@ -1,0 +1,99 @@
+@model StudentCourseManagement.Models.Enrollment
+
+@{
+    var isStudent = User.IsInRole("Student");
+    ViewData["Title"] = isStudent ? "Course Registration" : "Enroll Student";
+}
+
+<div class="form-card">
+    <div class="form-card-header d-flex justify-content-between align-items-center">
+        <div class="d-flex align-items-center gap-3">
+            <div class="stat-icon-box stat-icon-primary">
+                <i class="bi bi-pencil-square"></i>
+            </div>
+            <div>
+                <h4 class="fw-bold mb-0">@(isStudent ? "Enroll in Course" : "Enroll Student")</h4>
+                <small class="text-muted">@(isStudent ? "Select a course to register and join syllabus" : "Link an existing student to an active course")</small>
+            </div>
+        </div>
+        <a asp-action="Index" class="btn btn-sm btn-outline-secondary rounded-pill">
+            <i class="bi bi-arrow-left"></i> Back to List
+        </a>
+    </div>
+
+    <div class="form-card-body">
+        <form asp-action="Create" method="post">
+            <div asp-validation-summary="ModelOnly" class="alert alert-danger py-2 small mb-4"></div>
+
+            @if (isStudent && ViewBag.CurrentStudent != null)
+            {
+                var s = (StudentCourseManagement.Models.Student)ViewBag.CurrentStudent;
+                <input type="hidden" asp-for="StudentId" value="@s.Id" />
+
+                <div class="p-3 mb-3 bg-light rounded-3 border d-flex align-items-center gap-3">
+                    <div class="student-avatar" style="width: 40px; height: 40px;">
+                        @(string.IsNullOrEmpty(s.FullName) ? "ST" : s.FullName.Substring(0, 1).ToUpper())
+                    </div>
+                    <div>
+                        <div class="fw-bold text-dark">@s.FullName</div>
+                        <small class="text-muted">@s.Email &bull; @(s.Department ?? "General")</small>
+                    </div>
+                </div>
+            }
+            else
+            {
+                <div class="mb-3">
+                    <label asp-for="StudentId" class="form-label">Select Student <span class="text-danger">*</span></label>
+                    <div class="input-icon-group">
+                        <i class="bi bi-person"></i>
+                        <select asp-for="StudentId" asp-items="ViewBag.StudentId" class="form-select ps-5">
+                            <option value="">-- Choose a Student --</option>
+                        </select>
+                    </div>
+                    <span asp-validation-for="StudentId" class="text-danger small"></span>
+                </div>
+            }
+
+            <div class="mb-4">
+                <label asp-for="CourseId" class="form-label">Select Course <span class="text-danger">*</span></label>
+                <div class="input-icon-group">
+                    <i class="bi bi-book"></i>
+                    <select asp-for="CourseId" asp-items="ViewBag.CourseId" class="form-select ps-5">
+                        <option value="">-- Choose a Course --</option>
+                    </select>
+                </div>
+                <span asp-validation-for="CourseId" class="text-danger small"></span>
+            </div>
+
+            @if (!isStudent && ViewBag.StudentId is SelectList studentList && !studentList.Any())
+            {
+                <div class="alert alert-warning d-flex align-items-center gap-2 small mb-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>No students found. Please <a asp-controller="Students" asp-action="Create" class="alert-link">add a student</a> first.</span>
+                </div>
+            }
+
+            @if (ViewBag.CourseId is SelectList courseList && !courseList.Any())
+            {
+                <div class="alert alert-warning d-flex align-items-center gap-2 small mb-3">
+                    <i class="bi bi-exclamation-triangle-fill"></i>
+                    <span>No courses found. Please <a asp-controller="Courses" asp-action="Create" class="alert-link">add a course</a> first.</span>
+                </div>
+            }
+
+            <div class="d-flex align-items-center gap-2 pt-2 border-top">
+                <button type="submit" class="btn-app-primary">
+                    <i class="bi bi-check2-circle"></i>
+                    <span>@(isStudent ? "Confirm My Enrollment" : "Confirm Enrollment")</span>
+                </button>
+                <a asp-action="Index" class="btn-app-secondary">
+                    Cancel
+                </a>
+            </div>
+        </form>
+    </div>
+</div>
+
+@section Scripts {
+    @{await Html.RenderPartialAsync("_ValidationScriptsPartial");}
+}

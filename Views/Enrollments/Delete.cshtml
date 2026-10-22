@@ -1,0 +1,61 @@
+@model StudentCourseManagement.Models.Enrollment
+
+@{
+    ViewData["Title"] = "Cancel Enrollment";
+}
+
+<div class="form-card" style="max-width: 580px;">
+    <div class="form-card-header bg-danger-subtle border-danger-subtle d-flex align-items-center gap-3">
+        <div class="stat-icon-box stat-icon-warning" style="background: #fee2e2; color: #dc2626;">
+            <i class="bi bi-x-circle-fill"></i>
+        </div>
+        <div>
+            <h4 class="fw-bold text-danger mb-0">Cancel Enrollment Confirmation</h4>
+            <small class="text-muted">Remove this student from the course</small>
+        </div>
+    </div>
+
+    <div class="form-card-body">
+        <div class="alert alert-warning d-flex align-items-center gap-2 small mb-4">
+            <i class="bi bi-info-circle-fill fs-5"></i>
+            <div>
+                Cancelling this enrollment will revoke the student's access to this course's syllabus and records.
+            </div>
+        </div>
+
+        <div class="card p-3 bg-light border-0 mb-4 rounded-3">
+            <dl class="row mb-0 small">
+                <dt class="col-sm-4 text-muted">Enrollment ID</dt>
+                <dd class="col-sm-8 fw-semibold">#@Model.Id</dd>
+
+                <dt class="col-sm-4 text-muted">Student Name</dt>
+                <dd class="col-sm-8 fw-bold text-dark">@(Model.Student?.FullName ?? "N/A")</dd>
+
+                <dt class="col-sm-4 text-muted">Course</dt>
+                <dd class="col-sm-8 fw-semibold text-primary">@(Model.Course?.CourseName ?? "N/A")</dd>
+
+                <dt class="col-sm-4 text-muted">Enrollment Date</dt>
+                <dd class="col-sm-8">@Model.EnrollmentDate.ToString("dd MMMM yyyy")</dd>
+
+                <dt class="col-sm-4 text-muted">Current Status</dt>
+                <dd class="col-sm-8">
+                    <span class="badge-soft-success">
+                        <span class="badge-dot badge-dot-success"></span>
+                        <span>@Model.Status</span>
+                    </span>
+                </dd>
+            </dl>
+        </div>
+
+        <form asp-action="Delete" asp-route-id="@Model.Id" method="post" class="d-flex align-items-center gap-2 pt-2 border-top">
+            <button type="submit" class="btn-app-danger">
+                <i class="bi bi-x-circle"></i>
+                <span>Yes, Cancel Enrollment</span>
+            </button>
+
+            <a asp-action="Index" class="btn-app-secondary">
+                Go Back
+            </a>
+        </form>
+    </div>
+</div>

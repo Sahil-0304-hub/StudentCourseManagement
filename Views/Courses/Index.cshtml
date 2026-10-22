@@ -1,0 +1,203 @@
+@model IEnumerable<StudentCourseManagement.Models.Course>
+
+@{
+    ViewData["Title"] = "Courses";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">Course Catalog</h2>
+        <p class="text-muted mb-0">Browse, organize, and manage course offerings and tuition.</p>
+    </div>
+
+    @if (!User.IsInRole("Student"))
+    {
+        <a asp-action="Create" class="btn-app-primary">
+            <i class="bi bi-journal-plus"></i>
+            <span>Add New Course</span>
+        </a>
+    }
+</div>
+
+<!-- Notification Alert -->
+@if (TempData["Success"] != null)
+{
+    <div class="app-alert app-alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Success"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Search & Filter Bar -->
+<div class="card-modern mb-4">
+    <div class="card-modern-body p-3">
+        <form asp-controller="Courses" asp-action="Index" method="get" class="row g-2 align-items-center">
+            <div class="col-md-9 col-sm-8">
+                <div class="input-icon-group">
+                    <i class="bi bi-search"></i>
+                    <input type="text"
+                           name="searchString"
+                           value="@ViewBag.SearchString"
+                           class="form-control"
+                           placeholder="Search courses by title or curriculum details..." />
+                </div>
+            </div>
+
+            <div class="col-md-3 col-sm-4 d-flex gap-2">
+                <button type="submit" class="btn-app-primary flex-grow-1 justify-content-center">
+                    <i class="bi bi-search"></i>
+                    <span>Search</span>
+                </button>
+
+                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                {
+                    <a asp-action="Index" class="btn-app-secondary">
+                        <i class="bi bi-x-circle"></i>
+                        <span>Clear</span>
+                    </a>
+                }
+            </div>
+        </form>
+    </div>
+</div>
+
+<!-- Courses Data Table -->
+<div class="app-table-container">
+    <div class="table-responsive">
+        <table class="app-table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Course Title</th>
+                    <th>Curriculum / Description</th>
+                    <th>Tuition Fees</th>
+                    <th>Duration</th>
+                    <th class="text-end" style="width: 130px;">Actions</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var course in Model)
+                {
+                    <tr>
+                        <td class="text-muted fw-semibold">#@course.Id</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge-soft-success p-2 rounded-2">
+                                    <i class="bi bi-book-half fs-6"></i>
+                                </span>
+                                <span class="fw-bold text-dark">@course.CourseName</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small text-truncate d-inline-block" style="max-width: 320px;">
+                                @(string.IsNullOrWhiteSpace(course.Description) ? "No detailed syllabus provided." : course.Description)
+                            </span>
+                        </td>
+                        <td>
+                            <span class="fw-bold text-dark">₹@course.Fees.ToString("N2")</span>
+                        </td>
+                        <td>
+                            <span class="badge-soft-slate">
+                                <i class="bi bi-clock-history"></i>
+                                <span>@course.DurationInWeeks @(course.DurationInWeeks == 1 ? "Week" : "Weeks")</span>
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            @if (User.IsInRole("Student"))
+                            {
+                                var enrolledIds = ViewBag.EnrolledCourseIds as List<int>;
+                                if (enrolledIds != null && enrolledIds.Contains(course.Id))
+                                {
+                                    <span class="badge-soft-success py-1 px-3">
+                                        <i class="bi bi-check2-circle"></i>
+                                        <span>Enrolled</span>
+                                    </span>
+                                }
+                                else
+                                {
+                                    <a asp-controller="Enrollments"
+                                       asp-action="Create"
+                                       asp-route-courseId="@course.Id"
+                                       class="btn btn-sm btn-outline-primary rounded-pill px-3 py-1 d-inline-flex align-items-center gap-1">
+                                        <i class="bi bi-pencil-square"></i>
+                                        <span>Enroll</span>
+                                    </a>
+                                }
+                            }
+                            else
+                            {
+                                <div class="d-inline-flex align-items-center gap-1">
+                                    <a asp-action="Roster"
+                                       asp-route-id="@course.Id"
+                                       class="btn btn-sm btn-outline-primary rounded-pill px-2 py-1 d-inline-flex align-items-center gap-1"
+                                       title="View Enrolled Students Roster">
+                                        <i class="bi bi-people-fill"></i>
+                                        <span class="d-none d-md-inline">Roster</span>
+                                    </a>
+                                    <a asp-action="Edit"
+                                       asp-route-id="@course.Id"
+                                       class="btn-action-icon btn-action-edit"
+                                       title="Edit Course">
+                                        <i class="bi bi-pencil-fill"></i>
+                                    </a>
+                                    <a asp-action="Delete"
+                                       asp-route-id="@course.Id"
+                                       class="btn-action-icon btn-action-delete"
+                                       title="Delete Course">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </a>
+                                </div>
+                            }
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="p-0">
+                            <div class="app-empty-state">
+                                <div class="app-empty-icon">
+                                    <i class="bi bi-journal-x"></i>
+                                </div>
+                                <h5 class="fw-bold mb-1">No Courses Found</h5>
+                                <p class="text-muted mb-3">
+                                    @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                                    {
+                                        <span>No courses matched "<strong>@ViewBag.SearchString</strong>". Try adjusting your search query.</span>
+                                    }
+                                    else
+                                    {
+                                        <span>No courses have been added to the catalog yet.</span>
+                                    }
+                                </p>
+                                @if (!string.IsNullOrWhiteSpace(ViewBag.SearchString as string))
+                                {
+                                    <a asp-action="Index" class="btn-app-secondary">
+                                        <i class="bi bi-arrow-clockwise"></i> Clear Search
+                                    </a>
+                                }
+                                else
+                                {
+                                    <a asp-action="Create" class="btn-app-primary">
+                                        <i class="bi bi-journal-plus"></i> Add First Course
+                                    </a>
+                                }
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Showing <strong>@Model.Count()</strong> @(Model.Count() == 1 ? "course" : "courses")</span>
+            <span class="badge-soft-slate">Total Records: @Model.Count()</span>
+        </div>
+    }
+</div>

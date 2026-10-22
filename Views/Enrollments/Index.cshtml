@@ -1,0 +1,132 @@
+@model IEnumerable<StudentCourseManagement.Models.Enrollment>
+
+@{
+    ViewData["Title"] = "Enrollments";
+}
+
+<!-- Page Header -->
+<div class="d-flex flex-wrap justify-content-between align-items-center gap-3 mb-4">
+    <div>
+        <h2 class="fw-bold mb-1">@(User.IsInRole("Student") ? "My Course Enrollments" : "Student Enrollments")</h2>
+        <p class="text-muted mb-0">@(User.IsInRole("Student") ? "Review your enrolled courses and current status." : "Track active course assignments and student registrations.")</p>
+    </div>
+
+    <a asp-action="Create" class="btn-app-primary">
+        <i class="bi bi-pencil-square"></i>
+        <span>@(User.IsInRole("Student") ? "Enroll in Course" : "Enroll Student")</span>
+    </a>
+</div>
+
+<!-- Notification Alert -->
+@if (TempData["Success"] != null)
+{
+    <div class="app-alert app-alert-success alert-dismissible fade show" role="alert">
+        <i class="bi bi-check-circle-fill fs-5"></i>
+        <div class="flex-grow-1">@TempData["Success"]</div>
+        <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+    </div>
+}
+
+<!-- Enrollments Table -->
+<div class="app-table-container">
+    <div class="table-responsive">
+        <table class="app-table align-middle">
+            <thead>
+                <tr>
+                    <th style="width: 70px;">ID</th>
+                    <th>Student Name</th>
+                    <th>Enrolled Course</th>
+                    <th>Enrollment Date</th>
+                    <th>Status</th>
+                    <th class="text-end" style="width: 130px;">Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                @foreach (var enrollment in Model)
+                {
+                    var initials = "";
+                    if (!string.IsNullOrWhiteSpace(enrollment.Student?.FullName))
+                    {
+                        var parts = enrollment.Student.FullName.Trim().Split(' ', StringSplitOptions.RemoveEmptyEntries);
+                        if (parts.Length >= 2)
+                        {
+                            initials = $"{parts[0][0]}{parts[1][0]}".ToUpper();
+                        }
+                        else if (parts.Length == 1 && parts[0].Length > 0)
+                        {
+                            initials = parts[0].Substring(0, Math.Min(2, parts[0].Length)).ToUpper();
+                        }
+                    }
+                    if (string.IsNullOrEmpty(initials)) initials = "EN";
+
+                    <tr>
+                        <td class="text-muted fw-semibold">#@enrollment.Id</td>
+                        <td>
+                            <div class="d-flex align-items-center gap-3">
+                                <span class="student-avatar">@initials</span>
+                                <div>
+                                    <div class="fw-bold text-dark">@(enrollment.Student?.FullName ?? "Unknown Student")</div>
+                                    <small class="text-muted">@(enrollment.Student?.Email ?? "No email")</small>
+                                </div>
+                            </div>
+                        </td>
+                        <td>
+                            <div class="d-flex align-items-center gap-2">
+                                <span class="badge-soft-primary p-2 rounded-2">
+                                    <i class="bi bi-book"></i>
+                                </span>
+                                <span class="fw-semibold text-dark">@(enrollment.Course?.CourseName ?? "Unknown Course")</span>
+                            </div>
+                        </td>
+                        <td>
+                            <span class="text-muted small d-inline-flex align-items-center gap-2">
+                                <i class="bi bi-calendar-event text-secondary"></i>
+                                <span>@enrollment.EnrollmentDate.ToString("dd MMM yyyy")</span>
+                            </span>
+                        </td>
+                        <td>
+                            <span class="badge-soft-success">
+                                <span class="badge-dot badge-dot-success"></span>
+                                <span>@(string.IsNullOrWhiteSpace(enrollment.Status) ? "Active" : enrollment.Status)</span>
+                            </span>
+                        </td>
+                        <td class="text-end">
+                            <a asp-action="Delete"
+                               asp-route-id="@enrollment.Id"
+                               class="btn-action-icon btn-action-delete"
+                               title="Cancel Enrollment">
+                                <i class="bi bi-x-circle-fill"></i>
+                            </a>
+                        </td>
+                    </tr>
+                }
+
+                @if (!Model.Any())
+                {
+                    <tr>
+                        <td colspan="6" class="p-0">
+                            <div class="app-empty-state">
+                                <div class="app-empty-icon">
+                                    <i class="bi bi-card-checklist"></i>
+                                </div>
+                                <h5 class="fw-bold mb-1">No Active Enrollments</h5>
+                                <p class="text-muted mb-3">No students are currently enrolled in any courses.</p>
+                                <a asp-action="Create" class="btn-app-primary">
+                                    <i class="bi bi-pencil-square"></i> Enroll First Student
+                                </a>
+                            </div>
+                        </td>
+                    </tr>
+                }
+            </tbody>
+        </table>
+    </div>
+
+    @if (Model.Any())
+    {
+        <div class="p-3 bg-light-subtle border-top d-flex justify-content-between align-items-center">
+            <span class="text-muted small">Total <strong>@Model.Count()</strong> @(Model.Count() == 1 ? "active enrollment" : "active enrollments")</span>
+            <span class="badge-soft-slate">Total Records: @Model.Count()</span>
+        </div>
+    }
+</div>
